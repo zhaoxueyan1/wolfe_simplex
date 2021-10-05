@@ -41,7 +41,7 @@ public:
     // inequality constraint: G*x <= h
     Eigen::MatrixXd _G;
     Eigen::VectorXd _h;
-    // equality constraint: A*x = b
+    // equality constraint: A*x = b ?
     Eigen::MatrixXd _A;
     Eigen::VectorXd _b;
 
