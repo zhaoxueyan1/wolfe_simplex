@@ -1,7 +1,7 @@
 
 #include <iostream>
-#include "wolfe_simplex.h"
-
+#include "wolfe_simplex/wolfe_simplex.h"
+#include "active_set_dual/QuadProg.h"
 int main() {
     SHG::Vecdouble p((std::vector<double>) {-2, -5, 0, 0});
     SHG::Vecdouble C((std::vector<double>) {1, 0, 0, 0,
