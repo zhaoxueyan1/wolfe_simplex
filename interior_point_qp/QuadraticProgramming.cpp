@@ -114,7 +114,7 @@ Eigen::VectorXd QuadraticProgramming::PrimalDualInteriorPointMethod(const Eigen:
         etha = 0.0;
     _Iter = 0;
 
-    std::vector<double> f_i_vec(_G.rows());
+    vector<double> f_i_vec(_G.rows());
     while (_Iter < _maxIteration && !(rdual.squaredNorm() < _tolFea && rpri.squaredNorm() < _tolFea && etha < _eps))
     {
         _Iter++;
@@ -291,11 +291,11 @@ Eigen::VectorXd QuadraticProgramming::projectToFeasibleSpace(const Eigen::Vector
         }
     }
     // for debugging
-    std::vector<double> checkproj(_G.rows());
+    vector<double> checkproj(_G.rows());
     Eigen::VectorXd check = (_G*xNs.head(x0.size()) - _h);
     for (int i = 0; i < _G.rows(); i++)
         checkproj[i] = check(i);
-    std::vector<double> checkproj2(_A.rows());
+    vector<double> checkproj2(_A.rows());
 
     Eigen::VectorXd check2 = Eigen::VectorXd();
     if (_A.rows() > 0)
@@ -308,7 +308,7 @@ Eigen::VectorXd QuadraticProgramming::projectToFeasibleSpace(const Eigen::Vector
     for (int i = 0; i < _A.rows(); i++)
         checkproj2[i] = check2(i);
 
-    std::vector<double> s(_G.rows());
+    vector<double> s(_G.rows());
     for (unsigned int i = 0; i < s.size(); i++)
         s[i] = xNs(x0.size() + i);
     //cout << "checkproj: " << (_G*xNs.head(x0.size()) - _h).transpose() << endl;
