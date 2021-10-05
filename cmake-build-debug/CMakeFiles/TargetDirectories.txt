@@ -1,3 +1,0 @@
-/mnt/d/code/Optimization/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/mnt/d/code/Optimization/cmake-build-debug/CMakeFiles/edit_cache.dir
-/mnt/d/code/Optimization/cmake-build-debug/CMakeFiles/main.dir
