@@ -61,25 +61,24 @@ void test_primary_dual_interior_point_method() {
             0, 2;
     MatrixXd G(4, 2);
     G << -1, 2,
-            1, 2,
-            -1, 0,
-            0, -1;
+          1, 2,
+         -1, 0,
+          0, -1;
     VectorXd h(4);
     h << 2, 2, 0, 0;
 
     MatrixXd A(0, 0);
     VectorXd b(0);
 
-    VectorXd x =VectorXd::Zero(2);
+    VectorXd x = VectorXd::Zero(2);
     VectorXd f(2);
-    std::cout<<C<<std::endl;
-    std::cout<<G<<std::endl;
-
+    std::cout << C << std::endl;
+    std::cout << G << std::endl;
     QuadraticProgramming qp(C, p, G, h, A, b);
     f = qp.solve(x);
-    std::cout<<x<<std::endl;
+    std::cout << x << std::endl;
     VectorXd res_val(1);
-    res_val = 0.5*f.transpose()*C*f + p.transpose()*f;
+    res_val = 0.5 * f.transpose() * C * f + p.transpose() * f;
     printf("OK! The result is %f\n", res_val[0]);
     for (int i = 0; i < x.size(); i++) {
         printf("X%d : %f ", i, f[i]);
