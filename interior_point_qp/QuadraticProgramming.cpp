@@ -232,7 +232,9 @@ Eigen::VectorXd QuadraticProgramming::PrimalDualInteriorPointMethod(const Eigen:
             }
         }
         //if (_Display && _Iter % 10 == 0)
-        //printf("J = %.3f, iter = %u\n", 0.5*_xf.transpose()*_P*_xf + _xf.transpose()*_q, _Iter);
+        printf("iter = %u\n",_Iter);
+        std::cout<<_xf<<endl;
+//        printf("X = %.3f, iter = %u\n", 0.5*_xf.transpose()*_P*_xf + _xf.transpose()*_q, _Iter);
     }
     if (_Iter >= _maxIteration)
         _exit = ExitFlag::ExceedMaxIternation;
