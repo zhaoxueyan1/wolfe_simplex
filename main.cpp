@@ -245,8 +245,8 @@ namespace GoldenSearch {
             std::cout << "X:" << x << std::endl;
             printf("F:%f\n", f(x)[0]);
             x = x + alpha * d;
-            x[0] = std::max(x[0],0.0);
-            x[0] = std::min(x[0],8.0);
+            x[0] = std::max(x[0], 0.0);
+            x[0] = std::min(x[0], 8.0);
         }
         return x;
     }
@@ -329,12 +329,46 @@ namespace GoldenSearch {
                 printf("f2 %f\n", f2);
             }
 
-            if(c1 - b1 < 1e-7){
+            if (c1 - b1 < 1e-7) {
                 break;
             }
         }
         return r;
     }
+}
+
+namespace Zigzag {
+    using namespace Eigen;
+
+    VectorXd f(VectorXd x) {
+        VectorXd res(1);
+        res << pow(x[0] - 2, 2) + 4 * pow(x[1] - 3, 2);
+        return res;
+    }
+
+    VectorXd nebula_f(VectorXd x) {
+        VectorXd res(2);
+        res << 2 * (x[0] - 2) , 8 * (x[1] - 3);
+        return res;
+    }
+
+    VectorXd line_search_solve(VectorXd x, int itr) {
+        for (int i = 0; i < itr; i++) {
+            VectorXd n_f = nebula_f(x);
+            double norm =  sqrt((n_f.transpose() * n_f)[0]);
+            VectorXd d = -n_f / norm;
+            double alpha = 1;
+            printf("|%d |",i);
+            printf("(%f , %f) |",x[0],x[1]);
+            printf("%f |",f(x)[0]);
+            printf("(%f,%f) |",n_f[0],n_f[1]);
+            printf("%f |\n",norm);
+
+            x = x + alpha * d;
+        }
+        return x;
+    }
+
 }
 
 int main() {
@@ -354,9 +388,9 @@ int main() {
 //    std::cout << Newton::BFGS_solve(x, H, 4) << std::endl;
     std::cout << Newton::DFP_solve(x, H.inverse(), 4) << std::endl;
 #endif
-    Eigen::VectorXd x(1);
-    x << 3;
-    GoldenSearch::line_search_solve(x, 5);
+    Eigen::VectorXd x(2);
+    x << 0, 0;
+    Zigzag::line_search_solve(x, 10);
 //    GoldenSearch::fibonacci_search_solve(0, 8);
     return 0;
 }
