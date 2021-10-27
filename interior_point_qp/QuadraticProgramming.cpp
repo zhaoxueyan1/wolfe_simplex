@@ -18,7 +18,7 @@ QuadraticProgramming::QuadraticProgramming(const Eigen::MatrixXd& P, const Eigen
         _mu = 10; // >=10
         _beta = 0.5; // 0.3~0.8
         _alpha = 0.01; // 0.01~0.1
-        _Display = true;
+        _Display = false;
     }
 }
 
@@ -232,8 +232,8 @@ Eigen::VectorXd QuadraticProgramming::PrimalDualInteriorPointMethod(const Eigen:
             }
         }
         //if (_Display && _Iter % 10 == 0)
-        printf("iter = %u\n",_Iter);
-        std::cout<<_xf<<endl;
+//        printf("iter = %u\n",_Iter);
+//        std::cout<<_xf<<endl;
 //        printf("X = %.3f, iter = %u\n", 0.5*_xf.transpose()*_P*_xf + _xf.transpose()*_q, _Iter);
     }
     if (_Iter >= _maxIteration)

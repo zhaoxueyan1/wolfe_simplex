@@ -387,7 +387,7 @@ namespace SQP {
 
     VectorXd g(VectorXd x) {
         VectorXd res(4);
-        res << (x[0] + x[1] - 6), (x[0] * x[0] - x[1]), (6 - x[0]), (6 - x[1]);
+        res << (x[0] + x[1] - 6), (x[0] * x[0] - x[1]), (- x[0]), (- x[1]);
         return res;
     }
 
@@ -409,19 +409,19 @@ namespace SQP {
     }
 
 
-    VectorXd L(VectorXd x, VectorXd lambda) {
-        VectorXd res(1);
-        res << f(x)[0] + lambda[0] * (x[0] * x[0] - x[1]) + lambda[1] * (x[0] + x[1] - 6) + lambda[2] * (6 - x[0]) +
-               lambda[3] * (6 - x[1]);
-        return res;
-    }
-
-    VectorXd nebula_x_L(VectorXd x, VectorXd lambda) {
-        VectorXd res(2);
-        res << 2 * (x[0] - 9.0 / 4.0) + lambda[0] + 2 * lambda[1] * x[0] - lambda[2], 2 * (x[1] - 2) + lambda[0] -
-                                                                                      lambda[1] - lambda[3];
-        return res;
-    }
+//    VectorXd L(VectorXd x, VectorXd lambda) {
+//        VectorXd res(1);
+//        res << f(x)[0] + lambda[1] * (x[0] * x[0] - x[1]) + lambda[0] * (x[0] + x[1] - 6) + lambda[2] * (6 - x[0]) +
+//               lambda[3] * (6 - x[1]);
+//        return res;
+//    }
+//
+//    VectorXd nebula_x_L(VectorXd x, VectorXd lambda) {
+//        VectorXd res(2);
+//        res << 2 * (x[0] - 9.0 / 4.0) + lambda[0] + 2 * lambda[1] * x[0] - lambda[2], 2 * (x[1] - 2) + lambda[0] -
+//                                                                                      lambda[1] - lambda[3];
+//        return res;
+//    }
 
     MatrixXd hessian_x_L(VectorXd x, VectorXd lambda) {
         MatrixXd res(2, 2);
@@ -431,8 +431,8 @@ namespace SQP {
     }
 
     double get_fix_step_alpha(VectorXd x, VectorXd d) {
-        double delta_s = 0.3;
-        int i = 0;
+        double delta_s = 0.1;
+        int i = 1;
         for (; i < 10; i++) {
             VectorXd x0 = x + delta_s * i * d;
             if (f_p(x0)[0] < f_p(x + delta_s * (i + 1) * d)[0]) {
@@ -457,9 +457,11 @@ namespace SQP {
             VectorXd b(0);
 
             QuadraticProgramming qp(H_k, nebula_k, n_g_k, -g_k, A, b);
-            VectorXd d = qp.solve(x);
-
-            VectorXd x_optimal = qp.solve(x);
+            VectorXd init_x(2);
+            init_x << 0, 0;
+            VectorXd d = qp.solve(init_x);
+//            std::cout<<"Constraint\n"<<n_g_k * d+ g_k<<std::endl;
+            VectorXd x_optimal = x + d;
             VectorXd temp = -H_k * x_optimal - nebula_k;
 
             VectorXd lambda_optimal(4);
