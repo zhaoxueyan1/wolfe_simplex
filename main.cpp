@@ -348,26 +348,125 @@ namespace Zigzag {
 
     VectorXd nebula_f(VectorXd x) {
         VectorXd res(2);
-        res << 2 * (x[0] - 2) , 8 * (x[1] - 3);
+        res << 2 * (x[0] - 2), 8 * (x[1] - 3);
         return res;
     }
 
     VectorXd line_search_solve(VectorXd x, int itr) {
         for (int i = 0; i < itr; i++) {
             VectorXd n_f = nebula_f(x);
-            double norm =  sqrt((n_f.transpose() * n_f)[0]);
+            double norm = sqrt((n_f.transpose() * n_f)[0]);
             VectorXd d = -n_f / norm;
             double alpha = 1;
-            printf("|%d |",i);
-            printf("(%f , %f) |",x[0],x[1]);
-            printf("%f |",f(x)[0]);
-            printf("(%f,%f) |",n_f[0],n_f[1]);
-            printf("%f |\n",norm);
+            printf("|%d |", i);
+            printf("(%f , %f) |", x[0], x[1]);
+            printf("%f |", f(x)[0]);
+            printf("(%f,%f) |", n_f[0], n_f[1]);
+            printf("%f |\n", norm);
 
             x = x + alpha * d;
         }
         return x;
     }
+
+}
+namespace SQP {
+    using namespace Eigen;
+
+    VectorXd f(VectorXd x) {
+        VectorXd res(1);
+        res << pow(x[0] - 9.0 / 4.0, 2) + pow(x[1] - 2, 2);
+        return res;
+    }
+
+    VectorXd g(VectorXd x) {
+        VectorXd res(4);
+        res << (x[0] + x[1] - 6), (x[0] * x[0] - x[1]), (6 - x[0]), (6 - x[1]);
+        return res;
+    }
+
+    VectorXd f_p(VectorXd x) {
+        VectorXd res(1);
+        VectorXd t_g = g(x);
+        double Max = std::max(std::max(t_g[0], t_g[1]), std::max(t_g[2], t_g[3]));
+        res << (Max > 1e-7 ? 150000.0 : 0.0);
+        return res;
+    }
+
+    VectorXd nebula_g(VectorXd x) {
+        VectorXd res(4, 2);
+        res << 1, 1,
+                2 * x[0], -1,
+                -1, -1;
+        return res;
+    }
+
+    VectorXd L(VectorXd x, VectorXd lambda) {
+        VectorXd res(1);
+        res << f(x)[0] + lambda[0] * (x[0] * x[0] - x[1]) + lambda[1] * (x[0] + x[1] - 6) + lambda[2] * (6 - x[0]) +
+               lambda[3] * (6 - x[1]);
+        return res;
+    }
+
+    VectorXd nebula_x_L(VectorXd x, VectorXd lambda) {
+        VectorXd res(2);
+        res << 2 * (x[0] - 9.0 / 4.0) + lambda[0] + 2 * lambda[1] * x[0] - lambda[2], 2 * (x[1] - 2) + lambda[0] -
+                                                                                      lambda[1] - lambda[3];
+        return res;
+    }
+
+    MatrixXd hessian_x_L(VectorXd x, VectorXd lambda) {
+        VectorXd res(2, 2);
+        res << 2 + 2 * lambda[1], 0,
+                0, 2;
+        return res;
+    }
+
+    double get_fix_step_alpha(VectorXd x, VectorXd d) {
+        double delta_s = 0.3;
+        int i = 0;
+        for (; i < 10; i++) {
+            VectorXd x0 = x + delta_s * i * d;
+            if (f(x0)[0] + f_p(x0)[0] < f(x + delta_s * (i + 1) * d)[0] + f_p(x + delta_s * (i + 1) * d)[0]) {
+                break;
+            }
+        }
+        return i * delta_s;
+    }
+
+    VectorXd solve(int itr) {
+        VectorXd x(2);
+        x<<0,0;
+        VectorXd lambda(4);
+        lambda<<0,0,0,0;
+        for (int k = 0; k < itr; k++) {
+            MatrixXd H_k = hessian_x_L(x, lambda);
+            VectorXd nebula_k = nebula_x_L(x, lambda);
+            VectorXd n_g_k = nebula_g(x);
+            VectorXd g_k = g(x);
+            MatrixXd A(0, 0);
+            VectorXd b(0);
+
+            QuadraticProgramming qp(H_k, nebula_k, n_g_k, -g_k, A, b);
+            VectorXd d = qp.solve(x);
+
+            VectorXd x_optimal = qp.solve(x);
+            VectorXd lambda_optimal = (-nebula_f(x_optimal))* g(x_optimal).inverse();
+
+            double alpha = get_fix_step_alpha(x, d);
+            x = x + alpha * d;
+            lambda = lambda + alpha*(lambda_optimal - lambda);
+            std::cout << x << std::endl;
+        }
+        return x;
+    }
+
+    VectorXd nebula_f(VectorXd x) {
+        VectorXd res(2);
+        res << 2 * (x[0] - 2), 8 * (x[1] - 3);
+        return res;
+    }
+
 
 }
 
@@ -388,10 +487,14 @@ int main() {
 //    std::cout << Newton::BFGS_solve(x, H, 4) << std::endl;
     std::cout << Newton::DFP_solve(x, H.inverse(), 4) << std::endl;
 #endif
+# if 0
     Eigen::VectorXd x(2);
     x << 0, 0;
     Zigzag::line_search_solve(x, 10);
 //    GoldenSearch::fibonacci_search_solve(0, 8);
+#endif
+
     return 0;
+
 }
 
