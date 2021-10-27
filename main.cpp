@@ -379,17 +379,15 @@ namespace SQP {
         return res;
     }
 
-    VectorXd g(VectorXd x) {
-        VectorXd res(4);
-        res << (x[0] + x[1] - 6), (x[0] * x[0] - x[1]), (6 - x[0]), (6 - x[1]);
+    VectorXd nebula_f(VectorXd x) {
+        VectorXd res(2);
+        res << 2 * (x[0] - 9.0 / 4.0), 2 * (x[1] - 2);
         return res;
     }
 
-    VectorXd f_p(VectorXd x) {
-        VectorXd res(1);
-        VectorXd t_g = g(x);
-        double Max = std::max(std::max(t_g[0], t_g[1]), std::max(t_g[2], t_g[3]));
-        res << (Max > 1e-7 ? 150000.0 : 0.0);
+    VectorXd g(VectorXd x) {
+        VectorXd res(4);
+        res << (x[0] + x[1] - 6), (x[0] * x[0] - x[1]), (6 - x[0]), (6 - x[1]);
         return res;
     }
 
@@ -401,6 +399,15 @@ namespace SQP {
                 0, -1.0;
         return res;
     }
+
+    VectorXd f_p(VectorXd x) {
+        VectorXd res(1);
+        VectorXd t_g = g(x);
+        double Max = std::max(std::max(t_g[0], t_g[1]), std::max(t_g[2], t_g[3]));
+        res << f(x)[0] + (Max > 1e-7 ? 150000.0 : 0.0);
+        return res;
+    }
+
 
     VectorXd L(VectorXd x, VectorXd lambda) {
         VectorXd res(1);
@@ -425,21 +432,16 @@ namespace SQP {
 
     double get_fix_step_alpha(VectorXd x, VectorXd d) {
         double delta_s = 0.3;
-        int i = 1;
+        int i = 0;
         for (; i < 10; i++) {
             VectorXd x0 = x + delta_s * i * d;
-            if (f(x0)[0] + f_p(x0)[0] < f(x + delta_s * (i + 1) * d)[0] + f_p(x + delta_s * (i + 1) * d)[0]) {
+            if (f_p(x0)[0] < f_p(x + delta_s * (i + 1) * d)[0]) {
                 break;
             }
         }
         return i * delta_s;
     }
 
-    VectorXd nebula_f(VectorXd x) {
-        VectorXd res(2);
-        res << 2 * (x[0] - 2), 8 * (x[1] - 3);
-        return res;
-    }
 
     VectorXd solve(int itr) {
         VectorXd x(2);
@@ -448,7 +450,7 @@ namespace SQP {
         lambda << 0, 0, 0, 0;
         for (int k = 0; k < itr; k++) {
             MatrixXd H_k = hessian_x_L(x, lambda);
-            VectorXd nebula_k = nebula_x_L(x, lambda);
+            VectorXd nebula_k = nebula_f(x);
             MatrixXd n_g_k = nebula_g(x);
             VectorXd g_k = g(x);
             MatrixXd A(0, 0);
@@ -464,15 +466,17 @@ namespace SQP {
 //            std::cout<<n_g_k << std::endl;
             lambda_optimal = n_g_k.transpose().bdcSvd(ComputeThinU | ComputeThinV).solve(temp);
             double alpha = get_fix_step_alpha(x, d);
+            std::cout << "d:" << d << std::endl;
+            std::cout << "alpha:" << alpha << std::endl;
+            std::cout << "X:" << x << std::endl;
+            printf("F:%f\n", f(x)[0]);
+
             x = x + alpha * d;
             lambda = lambda + alpha * (lambda_optimal - lambda);
-            std::cout<<"X:\n";
-            std::cout << x << std::endl;
+
         }
         return x;
     }
-
-
 }
 
 int main() {
