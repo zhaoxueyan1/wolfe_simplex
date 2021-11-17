@@ -1,7 +1,15 @@
 # Optimization
 
-There are three methods for convex QP problem:
+There are some demos about optimization algorithm. And the code's demo is from UCAS' course *Optimization Methods in Algorithms*[]()
 
-- Wolfe's simplex method.
-- Active set dual method.
-- Primary dual interior point method.
+## Required
+
+- Eigen3
+- gcc
+
+## Start
+```Shell
+mkdir build
+cd build
+cmake ..
+```
