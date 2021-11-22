@@ -18,9 +18,15 @@ include_directories(${EIGEN3_INCLUDE_DIRS})
 #        opt_unconstr/test/test_unconstr.cpp
 #        line_search/test/test_line_search.cpp
 #        opt_constr/test/test_constr.cpp)
+#set(source
+#        opt_global/GA/GA.cpp
+#        opt_global/GA/GA.h
+#        opt_global/test/test_global.cpp)
+
 set(source
-        opt_global/GA/GA.cpp
-        opt_global/GA/GA.h
-        opt_global/test/test_global.cpp)
+        opt_global/BB/bb.cpp
+        opt_global/BB/bb.h)
+
 #add_executable(main main.cpp ${source})
-add_executable(testGA ${source})
+#add_executable(testGA ${source})
+add_executable(testbb ${source})
