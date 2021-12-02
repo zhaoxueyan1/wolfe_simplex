@@ -23,10 +23,12 @@ include_directories(${EIGEN3_INCLUDE_DIRS})
 #        opt_global/GA/GA.h
 #        opt_global/test/test_global.cpp)
 
+#set(source
+#        opt_global/BB/bb.cpp
+#        opt_global/BB/bb.h)
 set(source
-        opt_global/BB/bb.cpp
-        opt_global/BB/bb.h)
-
+        lp/simplex.cpp
+        lp/simplex.h)
 #add_executable(main main.cpp ${source})
 #add_executable(testGA ${source})
-add_executable(testbb ${source})
+add_executable(simplex ${source})
